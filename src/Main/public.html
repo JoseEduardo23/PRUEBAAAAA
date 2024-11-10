@@ -8,29 +8,28 @@
 </head>
 <body>
   <!-- Header con Dropdown y barra de búsqueda -->
-  <div id="header">
+  <header id="header">
     <!-- Dropdown para seleccionar género -->
     <select id="genre-select">
       <option value="">Seleccionar Género</option>
-      <option value="Movie">Peliculas</option>
+      <option value="Movie">Películas</option>
       <option value="TV Series">Series de TV</option>
-
     </select>
 
     <!-- Barra de búsqueda -->
     <div id="search">
       <input type="text" id="search-input" placeholder="Buscar película..." />
     </div>
-  </div>
+  </header>
 
   <!-- Contenedor de las películas -->
-  <div id="peliculas-container"></div>
+  <section id="peliculas-container"></section>
 
   <!-- Paginador -->
-  <div id="pagination">
+  <nav id="pagination">
     <button id="btn-anterior">Anterior</button>
     <button id="btn-siguiente">Siguiente</button>
-  </div>
+  </nav>
   
   <!-- Script donde se escribirá la lógica de JS -->
   <script src="JS/nuevo.js"></script>

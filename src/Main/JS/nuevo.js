@@ -19,28 +19,39 @@ const cargarImagenes = async () => {
     if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
 
     const data = await response.json();
+
     if (!data || !data.data || !Array.isArray(data.data.list)) {
       throw new Error("Estructura de datos inesperada en la respuesta");
     }
 
-    peliculas = data.data.list.slice(0, 100); // Limita la cantidad de datos a 100 para evitar problemas de tamaño
+    // Limita la cantidad de datos a 100 para evitar problemas de tamaño
+    peliculas = data.data.list.slice(0, 100);
     peliculasFiltradas = peliculas;
     mostrarPeliculas(); 
 
   } catch (error) {
     console.error("Error al cargar las películas:", error);
+    alert('Hubo un problema al cargar las películas. Intenta de nuevo más tarde.');
   }
 };
 
 const mostrarPeliculas = () => {
   const contenedor = document.getElementById('peliculas-container');
-  if (!contenedor) return console.error("No se encontró el contenedor de películas");
+  if (!contenedor) {
+    console.error("No se encontró el contenedor de películas");
+    return;
+  }
 
   contenedor.innerHTML = '';
 
   const inicio = (paginaActual - 1) * peliculasPorPagina;
   const fin = inicio + peliculasPorPagina;
   const peliculasPagina = peliculasFiltradas.slice(inicio, fin);
+
+  if (peliculasPagina.length === 0) {
+    contenedor.innerHTML = '<p>No se encontraron películas para mostrar.</p>';
+    return;
+  }
 
   peliculasPagina.forEach(pelicula => {
     const div = document.createElement('div');
@@ -78,7 +89,8 @@ const actualizarBotones = () => {
 };
 
 const cambiarPagina = (incremento) => {
-  paginaActual += incremento;
+  const maxPaginas = Math.ceil(peliculasFiltradas.length / peliculasPorPagina);
+  paginaActual = Math.min(Math.max(paginaActual + incremento, 1), maxPaginas);
   mostrarPeliculas();
 };
 
@@ -90,7 +102,7 @@ const filtrarPorGenero = () => {
     : peliculas;
   
   paginaActual = 1;
-  mostrarPeliculas(); 
+  mostrarPeliculas();
 };
 
 const buscarPeliculas = () => {
@@ -98,7 +110,7 @@ const buscarPeliculas = () => {
 
   peliculasFiltradas = peliculas.filter(pelicula => (pelicula.titleText?.text || "").toLowerCase().includes(query));
   paginaActual = 1;
-  mostrarPeliculas(); 
+  mostrarPeliculas();
 };
 
 // Event Listeners
