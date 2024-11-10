@@ -2,8 +2,12 @@
 function toggleForms() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
-    registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+    if (loginForm && registerForm) {
+        loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+        registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+    } else {
+        console.error("Formulario de login o registro no encontrado.");
+    }
 }
 
 // Función para generar la contraseña utilizando la API
@@ -12,27 +16,37 @@ const getPassword = async (length = 16) => {
     
     try {
         const response = await fetch(apiUrl, {
-            headers: { 'X-Api-Key': '1kUZ2uw1k+VedwpqSsXmiw==Vm71H20Zr265XPt5' }
+            headers: { 'X-Api-Key': '1kUZ2uw1k+VedwpqSsXmiw==Vm71H20Zr265XPt5' },
+            timeout: 5000 // Limitar el tiempo de espera de la solicitud a 5 segundos
         });
-        
-        if (response.ok) {
-            const data = await response.json();
-            return data.random_password || ""; // Retorna un string vacío si no hay contraseña
+
+        if (!response.ok) {
+            throw new Error(`Error en la API: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        if (data.random_password) {
+            return data.random_password;
         } else {
-            console.error("Error en la API de generación de contraseña:", response.statusText);
-            return ""; // Retorna un string vacío en caso de error
+            console.error("Error: No se generó la contraseña.");
+            return "";
         }
     } catch (error) {
-        console.error("Error en la solicitud:", error);
+        console.error("Error en la solicitud de la API:", error.message);
         return ""; // Retorna un string vacío en caso de error
     }
 };
 
 // Registro
-document.getElementById("registerForm").addEventListener("submit", async (event) => {
+document.getElementById("registerForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     
-    const email = document.getElementById("registerEmail").value;
+    const email = document.getElementById("registerEmail")?.value;
+    if (!email) {
+        document.getElementById("registerMessage").innerText = "Por favor, ingresa un correo electrónico.";
+        return;
+    }
+
     const password = await getPassword(); // Genera la contraseña
 
     if (password) {
@@ -50,17 +64,23 @@ document.getElementById("registerForm").addEventListener("submit", async (event)
 });
 
 // Inicio de sesión
-document.getElementById("loginForm").addEventListener("submit", (event) => {
+document.getElementById("loginForm")?.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const email = document.getElementById("loginEmail").value;
-    const enteredPassword = document.getElementById("loginPassword").value;
+    const email = document.getElementById("loginEmail")?.value;
+    const enteredPassword = document.getElementById("loginPassword")?.value;
+
+    if (!email || !enteredPassword) {
+        document.getElementById("message").innerText = "Por favor, ingresa tanto el correo como la contraseña.";
+        return;
+    }
+
     const generatedPassword = sessionStorage.getItem("generatedPassword"); // Obtiene la contraseña generada
 
     // Verifica que la contraseña ingresada coincida con la generada
     if (enteredPassword === generatedPassword) {
         document.getElementById("message").innerText = "Sesión iniciada correctamente";
-        window.location.href = "../Main/public.html";
+        window.location.href = "../Main/public.html"; // Redirige al usuario a la página principal
     } else {
         document.getElementById("message").innerText = "Credenciales incorrectas.";
     }

@@ -10,24 +10,22 @@ const cargarImagenes = async () => {
     headers: {
       'x-rapidapi-key': '9cd8a412e8msh32562a165b35b5ep13d3c4jsnd7ec50c8c811',
       'x-rapidapi-host': 'imdb188.p.rapidapi.com'
-    }
+    },
+    timeout: 5000 // Limita la duración de la solicitud a 5 segundos
   };
 
   try {
     const response = await fetch(url, options);
-    if (!response.ok) throw new Error("Error al cargar las películas");
+    if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
 
     const data = await response.json();
-
-    if (data && data.data && Array.isArray(data.data.list)) {
-      peliculas = data.data.list;  
-      peliculasFiltradas = peliculas;
-      mostrarPeliculas(); 
-    } else {
-      console.error("Datos inesperados en la respuesta de la API");
-      peliculas = [];
-      peliculasFiltradas = [];
+    if (!data || !data.data || !Array.isArray(data.data.list)) {
+      throw new Error("Estructura de datos inesperada en la respuesta");
     }
+
+    peliculas = data.data.list.slice(0, 100); // Limita la cantidad de datos a 100 para evitar problemas de tamaño
+    peliculasFiltradas = peliculas;
+    mostrarPeliculas(); 
 
   } catch (error) {
     console.error("Error al cargar las películas:", error);
@@ -36,6 +34,8 @@ const cargarImagenes = async () => {
 
 const mostrarPeliculas = () => {
   const contenedor = document.getElementById('peliculas-container');
+  if (!contenedor) return console.error("No se encontró el contenedor de películas");
+
   contenedor.innerHTML = '';
 
   const inicio = (paginaActual - 1) * peliculasPorPagina;
@@ -71,9 +71,10 @@ const mostrarPeliculas = () => {
 const actualizarBotones = () => {
   const btnAnterior = document.getElementById('btn-anterior');
   const btnSiguiente = document.getElementById('btn-siguiente');
-
-  btnAnterior.disabled = paginaActual === 1;
-  btnSiguiente.disabled = paginaActual * peliculasPorPagina >= peliculasFiltradas.length;
+  if (btnAnterior && btnSiguiente) {
+    btnAnterior.disabled = paginaActual === 1;
+    btnSiguiente.disabled = paginaActual * peliculasPorPagina >= peliculasFiltradas.length;
+  }
 };
 
 const cambiarPagina = (incremento) => {
@@ -84,13 +85,10 @@ const cambiarPagina = (incremento) => {
 const filtrarPorGenero = () => {
   const generoSeleccionado = document.getElementById('genre-select').value;
 
-  if (generoSeleccionado) {
-    peliculasFiltradas = peliculas.filter(pelicula =>
-      (pelicula.titleType?.text || "").toLowerCase().includes(generoSeleccionado.toLowerCase())
-    );
-  } else {
-    peliculasFiltradas = peliculas;
-  }
+  peliculasFiltradas = generoSeleccionado
+    ? peliculas.filter(pelicula => (pelicula.titleType?.text || "").toLowerCase().includes(generoSeleccionado.toLowerCase()))
+    : peliculas;
+  
   paginaActual = 1;
   mostrarPeliculas(); 
 };
@@ -98,16 +96,16 @@ const filtrarPorGenero = () => {
 const buscarPeliculas = () => {
   const query = document.getElementById('search-input').value.toLowerCase();
 
-  peliculasFiltradas = peliculas.filter(pelicula =>
-    (pelicula.titleText?.text || "").toLowerCase().includes(query)
-  );
+  peliculasFiltradas = peliculas.filter(pelicula => (pelicula.titleText?.text || "").toLowerCase().includes(query));
   paginaActual = 1;
   mostrarPeliculas(); 
 };
 
-document.getElementById('genre-select').addEventListener('change', filtrarPorGenero);
-document.getElementById('search-input').addEventListener('input', buscarPeliculas);
-document.getElementById('btn-anterior').addEventListener('click', () => cambiarPagina(-1));
-document.getElementById('btn-siguiente').addEventListener('click', () => cambiarPagina(1));
+// Event Listeners
+document.getElementById('genre-select')?.addEventListener('change', filtrarPorGenero);
+document.getElementById('search-input')?.addEventListener('input', buscarPeliculas);
+document.getElementById('btn-anterior')?.addEventListener('click', () => cambiarPagina(-1));
+document.getElementById('btn-siguiente')?.addEventListener('click', () => cambiarPagina(1));
 
+// Ejecutar la carga inicial de imágenes
 cargarImagenes();
