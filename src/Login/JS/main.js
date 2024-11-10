@@ -17,12 +17,14 @@ const getPassword = async (length = 16) => {
         
         if (response.ok) {
             const data = await response.json();
-            return data.random_password; 
+            return data.random_password || ""; // Retorna un string vacío si no hay contraseña
         } else {
-            throw new Error("Error en la API de generación de contraseña");
+            console.error("Error en la API de generación de contraseña:", response.statusText);
+            return ""; // Retorna un string vacío en caso de error
         }
     } catch (error) {
         console.error("Error en la solicitud:", error);
+        return ""; // Retorna un string vacío en caso de error
     }
 };
 
@@ -40,17 +42,8 @@ document.getElementById("registerForm").addEventListener("submit", async (event)
         // Almacena la contraseña generada en sessionStorage para su verificación posterior
         sessionStorage.setItem("generatedPassword", password);
 
-        // Envía la contraseña generada al backend para enviarla al correo electrónico
-        const response = await fetch("/send-password", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password })
-        });
-        
-        const result = await response.json();
-        document.getElementById("registerMessage").innerText = result.message || "Registro exitoso. Revisa tu correo para la contraseña.";
+        // Mensaje de éxito simulado, ya que no hay backend para enviar el correo
+        document.getElementById("registerMessage").innerText = "Registro exitoso. Tu contraseña fue generada.";
     } else {
         document.getElementById("registerMessage").innerText = "Error generando la contraseña.";
     }

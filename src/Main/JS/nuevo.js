@@ -1,4 +1,3 @@
-
 let peliculas = []; 
 let peliculasFiltradas = []; 
 let paginaActual = 1;
@@ -10,30 +9,35 @@ const cargarImagenes = async () => {
     method: 'GET',
     headers: {
       'x-rapidapi-key': '9cd8a412e8msh32562a165b35b5ep13d3c4jsnd7ec50c8c811',
-		  'x-rapidapi-host': 'imdb188.p.rapidapi.com'
+      'x-rapidapi-host': 'imdb188.p.rapidapi.com'
     }
   };
 
   try {
     const response = await fetch(url, options);
-    const data = await response.json();
-    console.log(data);
-    
+    if (!response.ok) throw new Error("Error al cargar las películas");
 
-    peliculas = data.data.list;  
-    peliculasFiltradas = peliculas;
-    mostrarPeliculas(); 
+    const data = await response.json();
+
+    if (data && data.data && Array.isArray(data.data.list)) {
+      peliculas = data.data.list;  
+      peliculasFiltradas = peliculas;
+      mostrarPeliculas(); 
+    } else {
+      console.error("Datos inesperados en la respuesta de la API");
+      peliculas = [];
+      peliculasFiltradas = [];
+    }
+
   } catch (error) {
     console.error("Error al cargar las películas:", error);
   }
 };
 
-
 const mostrarPeliculas = () => {
   const contenedor = document.getElementById('peliculas-container');
   contenedor.innerHTML = '';
 
-  // Calcula el índice inicial y final para la paginación
   const inicio = (paginaActual - 1) * peliculasPorPagina;
   const fin = inicio + peliculasPorPagina;
   const peliculasPagina = peliculasFiltradas.slice(inicio, fin);
@@ -42,13 +46,19 @@ const mostrarPeliculas = () => {
     const div = document.createElement('div');
     div.classList.add('pelicula');
 
+    const imageUrl = pelicula.primaryImage ? pelicula.primaryImage.imageUrl : "";
+    const title = pelicula.titleText ? pelicula.titleText.text : "Título no disponible";
+    const releaseYear = pelicula.releaseYear ? pelicula.releaseYear.year : "Año no disponible";
+    const genre = pelicula.titleType ? pelicula.titleType.text : "Género no disponible";
+    const description = pelicula.plot && pelicula.plot.plotText ? pelicula.plot.plotText.plainText : "Descripción no disponible";
+
     div.innerHTML = `
-      <img src="${pelicula.primaryImage.imageUrl}" alt="${pelicula.titleText.text}" />
+      <img src="${imageUrl}" alt="${title}" />
       <div class="pelicula-info">
-        <h3>${pelicula.titleText.text}</h3>
-        <p><strong>Año:</strong> ${pelicula.releaseYear.year}</p>
-        <p><strong>Género:</strong> ${pelicula.titleType.text}</p>
-        <p><strong>Descripción:</strong> ${pelicula.plot.plotText.plainText}</p>
+        <h3>${title}</h3>
+        <p><strong>Año:</strong> ${releaseYear}</p>
+        <p><strong>Género:</strong> ${genre}</p>
+        <p><strong>Descripción:</strong> ${description}</p>
       </div>
     `;
 
@@ -62,9 +72,7 @@ const actualizarBotones = () => {
   const btnAnterior = document.getElementById('btn-anterior');
   const btnSiguiente = document.getElementById('btn-siguiente');
 
-  // Deshabilita el botón "Anterior" si estamos en la primera página
   btnAnterior.disabled = paginaActual === 1;
-  // Deshabilita el botón "Siguiente" si estamos en la última página
   btnSiguiente.disabled = paginaActual * peliculasPorPagina >= peliculasFiltradas.length;
 };
 
@@ -73,35 +81,29 @@ const cambiarPagina = (incremento) => {
   mostrarPeliculas();
 };
 
-
 const filtrarPorGenero = () => {
   const generoSeleccionado = document.getElementById('genre-select').value;
 
   if (generoSeleccionado) {
-   
     peliculasFiltradas = peliculas.filter(pelicula =>
-      pelicula.titleType.text.toLowerCase().includes(generoSeleccionado.toLowerCase())
+      (pelicula.titleType?.text || "").toLowerCase().includes(generoSeleccionado.toLowerCase())
     );
   } else {
-   
     peliculasFiltradas = peliculas;
   }
-  paginaActual = 1; //
-  mostrarPeliculas(); 
-};
-
-
-const buscarPeliculas = () => {
-  const query = document.getElementById('search-input').value.toLowerCase();
-
- 
-  peliculasFiltradas = peliculas.filter(pelicula =>
-    pelicula.titleText.text.toLowerCase().includes(query)
-  );
   paginaActual = 1;
   mostrarPeliculas(); 
 };
 
+const buscarPeliculas = () => {
+  const query = document.getElementById('search-input').value.toLowerCase();
+
+  peliculasFiltradas = peliculas.filter(pelicula =>
+    (pelicula.titleText?.text || "").toLowerCase().includes(query)
+  );
+  paginaActual = 1;
+  mostrarPeliculas(); 
+};
 
 document.getElementById('genre-select').addEventListener('change', filtrarPorGenero);
 document.getElementById('search-input').addEventListener('input', buscarPeliculas);
