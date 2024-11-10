@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Películas</title>
+  <link rel="stylesheet" href="Estilos/styles.css">
+</head>
+<body>
+  <!-- Header con Dropdown y barra de búsqueda -->
+  <div id="header">
+    <!-- Dropdown para seleccionar género -->
+    <select id="genre-select">
+      <option value="">Seleccionar Género</option>
+      <option value="Movie">Peliculas</option>
+      <option value="TV Series">Series de TV</option>
+
+    </select>
+
+    <!-- Barra de búsqueda -->
+    <div id="search">
+      <input type="text" id="search-input" placeholder="Buscar película..." />
+    </div>
+  </div>
+
+  <!-- Contenedor de las películas -->
+  <div id="peliculas-container"></div>
+
+  <!-- Paginador -->
+  <div id="pagination">
+    <button id="btn-anterior">Anterior</button>
+    <button id="btn-siguiente">Siguiente</button>
+  </div>
+  
+  <!-- Script donde se escribirá la lógica de JS -->
+  <script src="JS/nuevo.js"></script>
+</body>
+</html>
