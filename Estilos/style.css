@@ -5,7 +5,7 @@ body {
     min-height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
-    background-image: url('/src/Login/Imagenes/fondo.jpg');
+    background-image: url('/Imagenes/fondo.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

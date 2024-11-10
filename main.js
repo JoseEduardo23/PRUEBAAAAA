@@ -17,7 +17,7 @@ const getPassword = async (length = 16) => {
     try {
         const response = await fetch(apiUrl, {
             headers: { 'X-Api-Key': '1kUZ2uw1k+VedwpqSsXmiw==Vm71H20Zr265XPt5' },
-            timeout: 5000 // Limitar el tiempo de espera de la solicitud a 5 segundos
+            timeout: 5000 
         });
 
         if (!response.ok) {
@@ -80,7 +80,7 @@ document.getElementById("loginForm")?.addEventListener("submit", (event) => {
     // Verifica que la contraseña ingresada coincida con la generada
     if (enteredPassword === generatedPassword) {
         document.getElementById("message").innerText = "Sesión iniciada correctamente";
-        window.location.href = "../Main/public.html"; // Redirige al usuario a la página principal
+        window.location.href = "../public.html"; // Redirige al usuario a la página principal
     } else {
         document.getElementById("message").innerText = "Credenciales incorrectas.";
     }

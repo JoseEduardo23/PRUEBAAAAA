@@ -11,7 +11,7 @@ const cargarImagenes = async () => {
       'x-rapidapi-key': '9cd8a412e8msh32562a165b35b5ep13d3c4jsnd7ec50c8c811',
       'x-rapidapi-host': 'imdb188.p.rapidapi.com'
     },
-    timeout: 5000 // Limita la duración de la solicitud a 5 segundos
+    timeout: 5000 
   };
 
   try {
